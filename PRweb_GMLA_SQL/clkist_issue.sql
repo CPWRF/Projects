@@ -4,7 +4,7 @@ SELECT /*[T_GMLA_CKLIST_ISSUE].[projectSizeId]*/
       ,[PROJECT_SIZE_NAME] as 'Project Name'
       /*,[T_GMLA_CKLIST_ISSUE].[typeId]*/
       ,[typeName] as 'Phase'
-      ,[submitDate] as 'GMLA Submit Date'
+      ,CAST([submitDate] as SMALLDATETIME) as 'GMLA Submit Date'
       /*,[T_GMLA_CKLIST_ISSUE].[categoryId]*/
       ,[categoryName] as 'Category'
       /*,[T_GMLA_CKLIST_ISSUE].[id]*/
@@ -13,8 +13,8 @@ SELECT /*[T_GMLA_CKLIST_ISSUE].[projectSizeId]*/
       ,[pqeSummary] as 'Reason'
       ,[plan]
       ,[issueOwner]
-      ,[targetDate]
-      ,[closeDate]
+      /*,[targetDate]
+      ,[closeDate]*/
       ,[T_GMLA_CKLIST_ISSUE].[status]
       /*,[T_GMLA_CKLIST_ISSUE].[updated_at]*/
   FROM [PR_WEB2].[dbo].[T_GMLA_CKLIST_ISSUE]
