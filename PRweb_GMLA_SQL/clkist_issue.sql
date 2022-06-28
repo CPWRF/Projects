@@ -2,15 +2,19 @@ SELECT /*[T_GMLA_CKLIST_ISSUE].[projectSizeId]*/
       [riskType] as 'Risk'
       ,[PROJECT_CATEGORY] as 'Segment'
       ,[PROJECT_SIZE_NAME] as 'Project Name'
+      /*
+      ,DPQE_table.[DISPLAY_NAME] as 'DPQE'
+      ,MPM_table.[DISPLAY_NAME] as 'MPM'
+      */
       /*,[T_GMLA_CKLIST_ISSUE].[typeId]*/
-      ,[typeName] as 'Phase'
-      ,CAST([submitDate] as SMALLDATETIME) as 'GMLA Submit Date'
+      ,LEFT([typeName],4) + Right([typeName],1) as 'Phase'
       /*,[T_GMLA_CKLIST_ISSUE].[categoryId]*/
       ,[categoryName] as 'Category'
       /*,[T_GMLA_CKLIST_ISSUE].[id]*/
       ,[no] as 'No'
       ,[questionnaire] as 'Questionnaire'
       ,[pqeSummary] as 'Reason'
+      ,CAST([submitDate] as SMALLDATETIME) as 'GMLA Submit Date'
       ,[plan]
       ,[issueOwner]
       /*,[targetDate]
@@ -42,3 +46,13 @@ SELECT /*[T_GMLA_CKLIST_ISSUE].[projectSizeId]*/
   AND [T_GMLA_CKLIST_ISSUE].projectSizeId = [T_GMLA_CKLIST].projectSizeId
   AND [T_GMLA_CKLIST_ISSUE].typeId = [T_GMLA_CKLIST].typeId)
   /* Join serval datas */
+  
+  /*
+  LEFT JOIN (select * from [PR_WEB2].[dbo].[T_CF_CrossFunctionRelateInfo] 
+  where LOOKUP_CODE = 'DPQE') as DPQE_table
+  on [T_GMLA_CKLIST_ISSUE].projectSizeId = DPQE_table.PROJECT_SIZE_ID
+
+  LEFT JOIN (select * from [PR_WEB2].[dbo].[T_CF_CrossFunctionRelateInfo] 
+  where LOOKUP_CODE = 'MPM') as MPM_table
+  on [T_GMLA_CKLIST_ISSUE].projectSizeId = MPM_table.PROJECT_SIZE_ID
+  */

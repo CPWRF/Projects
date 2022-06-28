@@ -1,6 +1,6 @@
 SELECT [projectSizeId]
       ,[PROJECT_SIZE_NAME]
-      ,[typeName]
+      ,LEFT([typeName],4) + Right([typeName],1) as 'Phase'
       ,[status]
       ,[rejectReason]
       ,[kickOffMeetingDate]
