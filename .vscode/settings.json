@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 1521,
+            "driver": "MySQL",
+            "database": "TOPEKA/MISTW",
+            "username": "MESENG",
+            "password": "MKSQLcn_ALx2V4",
+            "name": "Topeka/MISTW"
+        }
+    ]
+}

@@ -17,4 +17,4 @@ SELECT [ProjectSizeId]
   on ProjectSizeId = [T_PS_ProdSizeRelateInfo].PROJECT_SIZE_ID
   
   WHERE DESC_OF_TASK
-  IN ('Mechanical Design Review','Factory Prototype Design Review','Pilot Run Design Review') 
+  IN ('Mechanical Design Review','Factory Prototype Design Review','Pilot Run Design Review')
