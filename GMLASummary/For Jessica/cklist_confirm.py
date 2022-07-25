@@ -227,13 +227,13 @@ on_time_rate['on_time_rate'] = (100* (on_time_rate.on_time_projects / on_time_ra
 on_time_rate['actual_on_time_rate'] = (100* ((on_time_rate.on_time_projects+ on_time_rate.delay_but_rejected) / on_time_rate.total_projects))
 
 # Draw one year data
-ax = on_time_rate[datetime.now()-pd.DateOffset(years=1):datetime.now()].actual_on_time_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'On-time rate')
-ax2 = complete_rate[datetime.now()-pd.DateOffset(years=1):datetime.now()].complete_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'Complete rate')
+ax = on_time_rate[datetime.now()-pd.DateOffset(years=1):datetime.now()+pd.DateOffset(months=1)].actual_on_time_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'On-time rate')
+ax2 = complete_rate[datetime.now()-pd.DateOffset(years=1):datetime.now()+pd.DateOffset(months=1)].complete_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'Complete rate')
 ax.set_xlabel('Time');
 ax.set_ylabel('Complete rate');
 ax.set_title('Monthly GMLA Complete & On-time Rate Overview - within a year ~');
 plt.legend()
-plt.savefig(getcwd()+'\Complete and on_time rate',bbox_inches = "tight")
+plt.savefig(getcwd()+'\Complete and on_time rate',bbox_inches = "tight", facecolor='white', transparent=False, dpi=300)
 
 
 overall_show = overall[['projectSizeId','Segment','Project_Name','Phase','Risk','Score','status','actualCloseMeetingDate','estCloseMeetingDate','mergedCloseMeetingDate','targetGMLASubmitDate','actualGMLASubmitDate','on_time','delay_but_rejected']].set_index('projectSizeId').sort_index().sort_values(['Project_Name','Phase'])

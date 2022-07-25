@@ -4,8 +4,8 @@ SELECT [projectSizeId]
       ,[status]
       ,[rejectReason]
       ,[kickOffMeetingDate]
-      ,[baseOverDueDate] as 'closeMeetingDate'
-      ,[submitDate] as 'GMLASubmitDate'
+      ,[baseOverDueDate] as 'actualCloseMeetingDate'
+      ,[submitDate] as 'actualGMLASubmitDate'
       ,[IsByPass] 
   FROM [PR_WEB2].[dbo].[T_GMLA_CKLIST_CONFIRM]
 
