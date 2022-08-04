@@ -2,7 +2,7 @@
 # coding: utf-8
 
 import pyodbc
-from numpy import vectorize as vt
+from numpy import vectorize
 import pandas as pd
 import matplotlib.pyplot as plt
 from pandas.tseries.offsets import BDay
@@ -128,7 +128,7 @@ cklist_issue = cklist_issue.sort_values('Risk', ascending=False).drop_duplicates
 
 
 # Handle cKlist_confirm
-cklist_confirm.replace('0001-01-08 00:00:00.0000000 +08:00', None, inplace=True)
+cklist_confirm.loc[cklist_confirm.actualCloseMeetingDate.str.startswith('0001-01', na=False),'actualCloseMeetingDate'] = None
 
 cklist_confirm.actualCloseMeetingDate = pd.to_datetime(cklist_confirm.actualCloseMeetingDate, utc=True).dt.tz_convert('Asia/Taipei')
 cklist_confirm.actualGMLASubmitDate = pd.to_datetime(cklist_confirm.actualGMLASubmitDate,utc=True).dt.tz_convert('Asia/Taipei')
@@ -151,7 +151,9 @@ def mergeCloseMeeting(actualCloseMeetingDate, estCloseMeetingDate):
         return estCloseMeetingDate
     else:
         return actualCloseMeetingDate
-overall['mergedCloseMeetingDate'] = vt(mergeCloseMeeting)(overall.actualCloseMeetingDate, overall.estCloseMeetingDate)
+overall['mergedCloseMeetingDate'] = vectorize(mergeCloseMeeting)(overall.actualCloseMeetingDate, overall.estCloseMeetingDate)
+#overall['mergedCloseMeetingDate'] = overall[['actualCloseMeetingDate','estCloseMeetingDate']].apply(lambda overall : 
+#mergeCloseMeeting(overall['actualCloseMeetingDate'], overall['estCloseMeetingDate']),axis=1)
 
 overall['targetGMLASubmitDate'] = (overall.mergedCloseMeetingDate + BDay(8)).dt.date
 
@@ -164,8 +166,8 @@ def on_time(actualDate, targetDate):
         return 0
     else:
         return 1
-overall['on_time'] = vt(on_time)(overall.actualGMLASubmitDate, overall.targetGMLASubmitDate)
-
+overall['on_time'] = vectorize(on_time)(overall.actualGMLASubmitDate, overall.targetGMLASubmitDate)
+#overall['on_time'] = overall[['actualGMLASubmitDate','targetGMLASubmitDate']].apply(lambda overall : on_time(overall.actualGMLASubmitDate, overall.targetGMLASubmitDate),axis=1)
 
 # Merge cklist_issue to get "Risk"
 overall = pd.merge(left=overall, right=cklist_issue, on=['projectSizeId','Project_Name','Phase'], how='left')
@@ -181,8 +183,8 @@ def define_risk(status, risk):
     else:
         pass
 
-overall.Risk = vt(define_risk)(overall.status, overall.Risk)
-
+overall.Risk = vectorize(define_risk)(overall.status, overall.Risk)
+#overall.Risk = overall[['status','Risk']].apply(lambda overall: define_risk(overall.status,overall.Risk), axis=1)
 
 # Handle delay_but_rejected projects
 def delay_but_rejected(on_time, rejectReason):
@@ -192,8 +194,8 @@ def delay_but_rejected(on_time, rejectReason):
         return 1
     else:
         return 0
-overall['delay_but_rejected'] = vt(delay_but_rejected)(overall['on_time'], overall['rejectReason'])
-
+overall['delay_but_rejected'] = vectorize(delay_but_rejected)(overall['on_time'], overall['rejectReason'])
+#overall['delay_but_rejected'] = overall[['on_time','rejectReason']].apply(lambda overall : delay_but_rejected(overall.on_time, overall.rejectReason),axis=1)
 
 # Get GMLA score and merge to overall
 # Result 3 = complete, 1 = incomplete, 2 = yellow light, 0 = GMLA is open
