@@ -17,4 +17,4 @@ SELECT [Reference]
       ,[Job_GPN]
   FROM [ate_db_tblfinal_new].[dbo].[TblFinal]
 
-  WHERE ItemNameType in ('15686','15687','15688') and tDateTime > '2022-07-19'
+  WHERE ItemNameType in ('17369') and tDateTime > '2022-07-19'
