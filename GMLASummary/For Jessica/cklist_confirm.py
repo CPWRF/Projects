@@ -132,7 +132,8 @@ cklist_confirm.loc[cklist_confirm.actualCloseMeetingDate.str.startswith('0001-01
 
 cklist_confirm.actualCloseMeetingDate = pd.to_datetime(cklist_confirm.actualCloseMeetingDate, utc=True).dt.tz_convert('Asia/Taipei')
 cklist_confirm.actualGMLASubmitDate = pd.to_datetime(cklist_confirm.actualGMLASubmitDate,utc=True).dt.tz_convert('Asia/Taipei')
-cklist_confirm.head()
+#Project id 1124 is aborted
+cklist_confirm = cklist_confirm[cklist_confirm.projectSizeId != 1124]
 
 
 # Merge project_schedule
@@ -205,7 +206,6 @@ gmla_score = gmla_cklist.groupby(['projectSizeId','Phase']).agg({'Phase':'count'
 gmla_score.rename(columns={'Phase':'totalProject'}, inplace=True)
 gmla_score['Score'] = 100*(gmla_score.result / gmla_score.totalProject).round(4)
 gmla_score.reset_index(inplace=True)
-gmla_score
 
 overall = pd.merge(left=overall, right=gmla_score[['projectSizeId','Phase','Score']], on=['projectSizeId','Phase'], how='left')
 
