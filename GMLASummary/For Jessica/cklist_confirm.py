@@ -225,6 +225,7 @@ on_time_rate = on_time_rate[on_time_rate.status == 1] #Select compelted GMLAs
 on_time_rate.targetGMLASubmitDate = pd.to_datetime(on_time_rate.targetGMLASubmitDate)
 on_time_rate = on_time_rate.set_index('targetGMLASubmitDate').resample(rule='BM').agg({'Project_Name':'count','on_time':'sum','delay_but_rejected':'sum'})
 on_time_rate.rename(columns={'Project_Name':'total_projects','on_time':'on_time_projects','rejectReason':'rejcted_projects'}, inplace=True)
+on_time_rate = on_time_rate[datetime.now()-pd.DateOffset(years=1):datetime.now()]
 on_time_rate['on_time_rate'] = (100* (on_time_rate.on_time_projects / on_time_rate.total_projects))
 on_time_rate['actual_on_time_rate'] = (100* ((on_time_rate.on_time_projects+ on_time_rate.delay_but_rejected) / on_time_rate.total_projects))
 
