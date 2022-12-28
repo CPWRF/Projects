@@ -110,7 +110,7 @@ SELECT [projectSizeId]
   ON [T_GMLA_CKLIST].typeId = [T_GMLA_BS_VERSION_TYPE].id
 """
 
-connection_string = "DRIVER={SQL Server};SERVER=T1-PE-SUPPORT;DATABASE=PR_WEB2;UID=pieng;PWD=Q2iT5cwHJW3FH"
+connection_string = "DRIVER={SQL Server};SERVER=T1-PE-SUPPORT;DATABASE=PR_WEB2;UID=pimes2;PWD=LhZEv9JtGsZNX"
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
 engine = create_engine(connection_url)
 
@@ -123,7 +123,6 @@ gmla_cklist = pd.read_sql(gmla_cklist_query, engine)
 # Hanlde cklist_issue for project risk info.
 # Risk 4 = blue 1 star = Risk 2, replace blue star
 cklist_issue.Risk.replace(to_replace= 4,value = 2, inplace=True)
-
 cklist_issue = cklist_issue.sort_values('Risk', ascending=False).drop_duplicates(subset=['projectSizeId','Project_Name','Phase'], keep='first').sort_values('projectSizeId')
 
 

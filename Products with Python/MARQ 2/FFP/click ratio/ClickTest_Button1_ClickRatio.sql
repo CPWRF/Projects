@@ -1,15 +1,10 @@
-SELECT [Reference]
-      ,[ItemNameType]
-      ,[StationID]
-      ,[UserName]
+SELECT [ItemNameType] 
       ,[SerialNumber]
-      ,[ProductName]
-      ,[Version]
-      ,[Item7]
-      ,tDateTime
-      ,[SO]
       ,[Job_GPN]
-      ,[ClassCode]
+      ,[ProductName]
+      ,[Item7]
+      ,[tDateTime]
+      ,[SO]
   FROM [ate_db_tblfinal_new].[dbo].[TblFinal]
 
   WHERE ItemNameType in ('12434') 
