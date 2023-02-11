@@ -36,10 +36,10 @@ def pivot_raw(raw):
     return(raw
     .assign(judge = raw.judge.map({'OK':1, 'NG':0}).astype('int8'))
     .sort_values('createdata', ascending=False)
-    .drop_duplicates(subset=['PCBver','station','Position','memo'])
+    .drop_duplicates(subset=['PCBver','station','Position','memo', 'judge']) #The reason subset consider 'judge' is same position may have 2 strain gauge and each of gauge may have different result
     .groupby(['station','memo','PCBver','createdata','Position'])
     ['judge']
-    .sum()
+    .min() #If one of results in the same position is 0, take 0 as output.
     .unstack('Position')
     .sort_index(level=['station','createdata'],ascending=False)
     .style.applymap(lambda val : "background-color: red" if val == 0 else "")
