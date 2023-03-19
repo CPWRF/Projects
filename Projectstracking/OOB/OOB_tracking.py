@@ -328,7 +328,7 @@ feature_comment_melt
 
 
 # In[37]:
-feature_metrix = feature_comment_melt.groupby(['New_feature','actualGMLASubmitDate']).count().unstack(level='actualGMLASubmitDate')['Project_Name'].fillna(0).drop(index='',axis=0).style.background_gradient(axis=None)
+feature_metrix = feature_comment_melt.groupby(['New_feature','actualGMLASubmitDate']).count().unstack(level='actualGMLASubmitDate')['Project_Name'].fillna(0).style.background_gradient(axis=None)
 feature_metrix
 
 
@@ -394,4 +394,3 @@ with pd.ExcelWriter('OOB_tracking.xlsx',engine='openpyxl') as writer:
 
     oob_pid.to_excel(writer, sheet_name='oob_pid',index=False)
     auto_adjust_xlsx_column_width(oob_pid, writer, sheet_name="oob_pid", margin=5)
-
