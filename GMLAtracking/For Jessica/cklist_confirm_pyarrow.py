@@ -8,7 +8,7 @@ from datetime import datetime
 from os import getcwd
 from sqlalchemy.engine import URL
 from sqlalchemy import create_engine
-from UliPlot.XLSX import auto_adjust_xlsx_column_width
+# from UliPlot.XLSX import auto_adjust_xlsx_column_width
 #%%
 # SQL
 # Get GMLA list
@@ -110,16 +110,17 @@ connection_string = "DRIVER={SQL Server};SERVER=T1-PE-SUPPORT;DATABASE=PR_WEB2;U
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
 engine = create_engine(connection_url)
 
-cklist_confirm = pd.read_sql(cklist_confirm_query, engine)
-project_schedule = pd.read_sql(project_schedule_query, engine, parse_dates='estCloseMeeting')
-cklist_issue = pd.read_sql(cklist_issue_query, engine)
-gmla_cklist = pd.read_sql(gmla_cklist_query, engine)
+cklist_confirm = pd.read_sql(cklist_confirm_query, engine, dtype_backend='pyarrow')
+project_schedule = pd.read_sql(project_schedule_query, engine, parse_dates='estCloseMeeting', dtype_backend='pyarrow')
+cklist_issue = pd.read_sql(cklist_issue_query, engine, dtype_backend='pyarrow')
+gmla_cklist = pd.read_sql(gmla_cklist_query, engine, dtype_backend='pyarrow')
 #%%
 # Hanlde cklist_issue for project risk info.
 # Risk 4 = blue 1 star = Risk 2, replace blue star
 def tweak_cklist_issue(df):
     return(df
     .assign(Risk = df.Risk.replace(to_replace= 4,value = 2))
+    .astype({"projectSizeId":'int16[pyarrow]',"Phase":"category","Risk":"category"})
     .sort_values('Risk')
     .drop_duplicates(subset=['projectSizeId','Project_Name','Phase'], keep='first')
     .sort_values('projectSizeId')
@@ -128,13 +129,16 @@ def tweak_cklist_confirm(df):
     return(df
         .assign(actCloseMeeting = df.actCloseMeeting.replace('0001-01-08 00:00:00.0000000 +08:00',None))
         .assign(actCloseMeeting = lambda df_ : (pd.to_datetime(df_.actCloseMeeting, utc=True).dt.tz_convert('Asia/Taipei')),
-                actGMLASubmit = lambda df_ : (pd.to_datetime(df_.actGMLASubmit, utc=True).dt.tz_convert('Asia/Taipei')))
+                actGMLASubmit = lambda df_ : (pd.to_datetime(df_.actGMLASubmit, utc=True).dt.tz_convert('Asia/Taipei')),
+                rejectReason = lambda df_ : df_.rejectReason.notnull())
+        .astype({"projectSizeId":'int16[pyarrow]',"Phase":"category","status":"boolean","Segment":"category"})
         .query('projectSizeId != 1124') #Project id 1124 is aborted
     )
 def tweak_project_schedule(df):
     return(df
     .assign(estCloseMeeting = df.estCloseMeeting.dt.tz_convert('Asia/Taipei')
             ,Phase = df.DESC_OF_TASK.map({'Mechanical Design Review':'GMLA1','Factory Prototype Design Review':'GMLA2','Pilot Run Design Review':'GMLA3'}))
+    .astype({"projectSizeId":'int16[pyarrow]',"DESC_OF_TASK":"category","Phase":'category'})
     .drop_duplicates(subset=['projectSizeId','Phase']) # Some project have multi-design review date in PMsystem
     .drop('DESC_OF_TASK', axis=1)
     )
@@ -143,7 +147,6 @@ def tweak_project_schedule(df):
 overall = pd.merge(left=tweak_cklist_confirm(cklist_confirm), 
                    right=tweak_project_schedule(project_schedule), 
                    how='left', on=['projectSizeId','Phase'])
-overall
 #%%
 def targetGMLASubmit(actCloseMeeting, estCloseMeeting):
     if actCloseMeeting is pd.NaT:
@@ -152,7 +155,7 @@ def targetGMLASubmit(actCloseMeeting, estCloseMeeting):
         return (actCloseMeeting + BDay(8))
 def on_time(actualDate, targetDate):
     if actualDate is pd.NaT or targetDate is pd.NaT:
-        return None
+        return pd.NaT
     elif actualDate > targetDate:
         return 0
     else:
@@ -164,52 +167,38 @@ def tweak_overall(df):
     .assign(actGMLASubmit = lambda df_ : df_.actGMLASubmit.dt.date
             ,targetGMLASubmit = lambda df_ : df_.targetGMLASubmit.dt.date
             ,on_time = lambda df_: vectorize(on_time)(df_.actGMLASubmit, df_.targetGMLASubmit))
+    .astype({'on_time':'bool'})
     )
-# (overall
-#  .assign(CloseMeeting = vectorize(mergeCloseMeeting)(overall.actCloseMeeting, overall.estCloseMeeting)
-#          ,targetGMLASubmit = lambda df_ : ((df_.CloseMeeting + BDay(8)).dt.date)
-#          ,on_time = lambda df_ : vectorize(on_time)(df_.actGMLASubmit, df_.targetGMLASubmit))
-#  .drop(columns=['actCloseMeeting','estCloseMeeting'])
-#  .assign(actGMLASubmit = lambda df_ : df_.actGMLASubmit.dt.date
-#          ,CloseMeeting = lambda df_ : df_.CloseMeeting.dt.date)
-#  .query("on_time==1")
-# )
 #%%
 # Merge cklist_issue to get "Risk"
 overall2 = pd.merge(left=tweak_overall(overall), right=tweak_cklist_issue(cklist_issue), 
                    on=['projectSizeId','Project_Name','Phase'], how='left')
 #%%
-def color_risk(status, risk):
-    if status == 1:
-        if risk == 3:
-            return 'Red'
-        elif risk == 2:
-            return "Yellow"
-        else:
-            return "Green"
-    else:
-        pass
-def delay_but_rejected(on_time, rejectReason):
-    if on_time is None:
-        return None
-    elif on_time == False and rejectReason != None:
-        return 1
-    else:
-        return 0
+# def color_risk(status, risk):
+#     if status == 1:
+#         if risk == 3:
+#             return 'Red'
+#         elif risk == 2:
+#             return "Yellow"
+#         else:
+#             return "Green"
+#     else:
+#         return pd.NA
 def tweak_overall2(df):
     return(df
-    .assign(Risk = vectorize(color_risk)(df.status, df.Risk)
-            ,delay_but_rejected = vectorize(delay_but_rejected)(df.on_time, df.rejectReason))
+    .assign(Risk = df.Risk.map({3:'Red',2:"Yellow",1:"Green",0:'Green'}).astype('category')
+            ,delay_but_rejected = (df.rejectReason == True) & (df.on_time == False))
     )
 def tweak_gmla_cklist(df):    
     return(df
-    .assign(result = df.result.map({3:1, 1:0, 2:0})) 
+    .assign(result = df.result.map({3:1, 1:0, 2:0}))
     # Result 3 = complete, 1 = incomplete, 2 = yellow light, 0 = GMLA is open
     .groupby(['projectSizeId','Phase']).agg({'Phase':'count','result':'sum'})
     .rename(columns={'Phase':'totalProject'})
     .assign(Score = lambda df_ : 100*(df_.result / df_.totalProject).round(4))
     .reset_index()
     [['projectSizeId','Phase','Score']]
+    .astype({"projectSizeId":'int16[pyarrow]',"Phase":"category","Score":"float16"})
     )
 #%%
 # Get GMLA score and merge to overall
@@ -248,20 +237,20 @@ plt.savefig(getcwd()+'\Complete and on_time rate',bbox_inches = "tight", facecol
 def overall_show(df):
     return(df
     [['projectSizeId','Segment','Project_Name','Phase','Risk','Score','status','targetGMLASubmit','actGMLASubmit','on_time','delay_but_rejected']]
-    .set_index('projectSizeId')
-    .sort_index()
-    .sort_values(['Project_Name','Phase'])
-    .assign(status = lambda df_ : df_.status.map({1:'Complete',0:'Incomplete'})
-            ,on_time = lambda df_ : df_.on_time.map({1:'Y',0:'N'}))
+    # .set_index('projectSizeId')
+    # .sort_index()
+    .sort_values(['projectSizeId','Phase'], ascending=False)
+    .assign(status = lambda df_ : df_.status.map({True:'Complete',False:'Incomplete'})
+            ,on_time = lambda df_ : df_.on_time.map({True:'Y',False:'N'}))
     )
 #%%
 # Excel writer
 with pd.ExcelWriter(getcwd()+'\data.xlsx', engine='openpyxl') as writer:
     overall_show(overall3).to_excel(writer, sheet_name='overall', index=False)
-    auto_adjust_xlsx_column_width(overall_show(overall3), writer, sheet_name="overall", margin=5)
+    # auto_adjust_xlsx_column_width(overall_show(overall3), writer, sheet_name="overall", margin=5)
     
     complete_rate(overall3).to_excel(writer, sheet_name='complete_rate', index=False)
-    auto_adjust_xlsx_column_width(complete_rate(overall3), writer, sheet_name="complete_rate", margin=5)
+    # auto_adjust_xlsx_column_width(complete_rate(overall3), writer, sheet_name="complete_rate", margin=5)
     
     on_time_rate(overall3).to_excel(writer, sheet_name='on_time_rate', index=False)
-    auto_adjust_xlsx_column_width(on_time_rate(overall3), writer, sheet_name="on_time_rate", margin=5)
+    # auto_adjust_xlsx_column_width(on_time_rate(overall3), writer, sheet_name="on_time_rate", margin=5)
