@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 # %%
 pre = pd.read_excel('FFP.xlsx', sheet_name='TestResult')
-next = pd.read_excel('PR.xlsx', sheet_name='45')
+next = pd.read_excel('WWPR.xlsx', sheet_name='45')
 
-ProcessTypeBlackList = 'Pack|Click|RabbitCard|EasyCard|DeleteBundle|nextodScan|FileCopyer'
-ItemNameBlackList = 'ESN|Check nextoductionMap|Fixture ID'
+ProcessTypeBlackList = 'Pack|Click|RabbitCard|EasyCard|DeleteBundle|ProdScan|FileCopyer'
+ItemNameBlackList = 'ESN|Check ProductionMap|Fixture ID'
 
 def tweak(raw):
     return(raw
@@ -16,10 +16,10 @@ def tweak(raw):
     .sort_values('Retest', ascending=False)
     .astype({'ItemNameType':'category','ProcessType':'category','Item':'category','ItemName':'category'})
     .assign(CountESN = lambda df : df.CountCountESN.str.split('/').str[1].astype('int16'))
+    .query("~ProcessType.str.contains(@ProcessTypeBlackList) and ~ItemName.str.contains(@ItemNameBlackList)")
     )
 def tweak_filter(raw):
     return(tweak(raw)
-    .query("~ProcessType.str.contains(@ProcessTypeBlackList) and ~ItemName.str.contains(@ItemNameBlackList)")
     # .query("CountESN > CountESN.quantile(0.05)")
     .query("Retest >= Retest.mean()")
     # .Retest.mean()
@@ -48,3 +48,6 @@ RetryDiff(pre_next)
 with pd.ExcelWriter(f"output_{RetryImprove(pre_next)}%improved.xlsx", engine='openpyxl') as writer:
     pre_next.to_excel(writer, sheet_name='Merge', index=False)
     RetryDiff(pre_next).to_excel(writer, sheet_name='RetryDiff', index=False)
+#%%
+# Total improvement rate
+100*((tweak(pre).Retest.sum() - tweak(next).Retest.sum())/ tweak(pre).Retest.sum())

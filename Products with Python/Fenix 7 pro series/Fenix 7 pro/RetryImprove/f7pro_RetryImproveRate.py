@@ -6,8 +6,8 @@ import seaborn as sns
 pre = pd.read_excel('f7pro_FFP_45.xlsx')
 next = pd.read_excel('f7pro_PR_45.xlsx')
 
-nextocessTypeBlackList = 'Pack|Click|RabbitCard|EasyCard|DeleteBundle|nextodScan|FileCopyer'
-ItemNameBlackList = 'ESN|Check nextoductionMap|Fixture ID'
+ProcessTypeBlackList = 'Pack|Click|RabbitCard|EasyCard|DeleteBundle|ProdScan|FileCopyer'
+ItemNameBlackList = 'ESN|Check ProductionMap|Fixture ID'
 
 def tweak(raw):
     return(raw
@@ -16,10 +16,10 @@ def tweak(raw):
     .sort_values('Retest', ascending=False)
     .astype({'ItemNameType':'category','ProcessType':'category','Item':'category','ItemName':'category'})
     .assign(CountESN = lambda df : df.CountCountESN.str.split('/').str[1].astype('int16'))
+    .query("~ProcessType.str.contains(@ProcessTypeBlackList) and ~ItemName.str.contains(@ItemNameBlackList)")
     )
 def tweak_filter(raw):
     return(tweak(raw)
-    .query("~ProcessType.str.contains(@nextocessTypeBlackList) and ~ItemName.str.contains(@ItemNameBlackList)")
     .query("CountESN > CountESN.quantile(0.05)")
     .query("Retest >= Retest.mean()")
     # .Retest.mean()
@@ -29,7 +29,7 @@ pre_next = pd.merge(
     left=tweak_filter(pre), right=tweak(next), how='left',
     left_on=['ItemNameType','Item'], right_on=['ItemNameType','Item'],
     suffixes=['_pre','_next'])
-pre_next.to_excel('F7pro_utput.xlsx', index=False)
+# pre_next.to_excel('F7pro_utput.xlsx', index=False)
 # %%
 # RetryImproveRate
 def RetryImprove(df):
@@ -50,3 +50,6 @@ RetryDiff(pre_next)
 with pd.ExcelWriter(f"output_{RetryImprove(pre_next)}%improved.xlsx", engine='openpyxl') as writer:
     pre_next.to_excel(writer, sheet_name='Merge', index=False)
     RetryDiff(pre_next).to_excel(writer, sheet_name='RetryDiff', index=False)
+#%%
+# Total improvement rate
+100*((tweak(pre).Retest.sum() - tweak(next).Retest.sum())/ tweak(pre).Retest.sum())

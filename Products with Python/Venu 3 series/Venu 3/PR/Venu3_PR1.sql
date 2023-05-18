@@ -1,0 +1,67 @@
+SELECT
+    ItemNameType,
+    Item134,
+    Item134St,
+    Item231,
+    Item231St,
+    Item16,
+    Item16St,
+    Item6,
+    Item6St,
+    Item89,
+    Item89St,
+    tblfinal.tDateTime
+
+FROM ate_db_tblfinal_new.dbo.TblFinal
+
+JOIN dbo.tblfinal2 on
+(tblfinal.tDateTime = tblfinal2.tDateTime 
+and tblfinal.SerialNumber = tblfinal2.SerialNumber)
+
+WHERE tblfinal.tDateTime > '2023-04-10'
+and ItemNameType in (16678,19341, 16558)
+and SO in (
+    16233831,
+16233832,
+16233833,
+16233898,
+16233899,
+16233900,
+16233901,
+16233902,
+16233903,
+16233915,
+16233916,
+16233917,
+16233918,
+16233919,
+16233920,
+16233921,
+16233924,
+16233925,
+16233926,
+16233927,
+16233928,
+16233929,
+16233930,
+16233931,
+16233932,
+16233933,
+16233934,
+16233935,
+16233944,
+16233945,
+16233946,
+16233947,
+16233948,
+16233949,
+16233950,
+16233951,
+16263213,
+16263234,
+16263241,
+16263349,
+16263878,
+16280768
+)
+
