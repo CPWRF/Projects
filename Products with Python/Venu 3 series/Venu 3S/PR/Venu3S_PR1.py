@@ -25,7 +25,7 @@ def degree(df):
     .Retest.mean().round(2))
 filter(testresult)
 # %%
-# filter(testresult).to_excel(f'Triggerby{degree(testresult)}percent.xlsx', index=False)
+filter(testresult).to_excel(f'Triggerby{degree(testresult)}percent.xlsx', index=False)
 # %%
 raw = pd.read_excel('Venu3S_PR1_raw.xlsx')
 # %%

@@ -132,7 +132,7 @@ def tweak_cklist_confirm(df):
                 actGMLASubmit = lambda df_ : (pd.to_datetime(df_.actGMLASubmit, utc=True).dt.tz_convert('Asia/Taipei')),
                 rejectReason = lambda df_ : df_.rejectReason.notnull())
         .astype({"projectSizeId":'int16',"Phase":"category","status":"boolean","Segment":"category"})
-        .query('projectSizeId != 1124') #Project id 1124 is aborted
+        .query('projectSizeId != 1124 & projectSizeId != 842') #Project id 1124 is aborted
     )
 def tweak_project_schedule(df):
     return(df
@@ -229,7 +229,7 @@ def on_time_rate(df):
 ax = on_time_rate(overall3)[datetime.now()-pd.DateOffset(years=1):datetime.now()+pd.DateOffset(months=1)].actual_on_time_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'On-time rate')
 ax2 = complete_rate(overall3)[datetime.now()-pd.DateOffset(years=1):datetime.now()+pd.DateOffset(months=1)].complete_rate.plot(figsize=(18,6), marker='o', markersize=10 ,lw=3, grid=True, alpha=0.5, label = 'Complete rate')
 ax.set_xlabel('Time');
-ax.set_ylabel('Complete rate');
+ax.set_ylabel('Rate');
 ax.set_title('Monthly GMLA Complete & On-time Rate Overview - within a year ~');
 plt.legend()
 plt.savefig(getcwd()+'\Complete and on_time rate',bbox_inches = "tight", facecolor='white', transparent=False, dpi=300)
