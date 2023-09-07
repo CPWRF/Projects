@@ -47,6 +47,4 @@ def pivot_raw(raw):
 
 with pd.ExcelWriter(getcwd()+'\{}_StrainResult.xlsx'.format(gpn), engine='openpyxl') as writer:
     pivot_raw(raw).to_excel(writer, sheet_name='pivot')
-
     raw.to_excel(writer, sheet_name='raw', index=False)
-    #105-04263-20auto_adjust_xlsx_column_width(raw, writer, sheet_name="raw", margin=3)

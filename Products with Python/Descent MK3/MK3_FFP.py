@@ -2,7 +2,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import manufacturing as mn
+# import manufacturing as mn
 # %%
 # testresult = pd.read_excel('MARQ_carbon_PR.xlsx',sheet_name='Test Result')
 # # %%
@@ -43,17 +43,16 @@ plt.style.use('fivethirtyeight')
 #     ,x=f'Item{item}'
 #     ,hue='Result'
 #     ,hue_order=[1,0])
-def ppk_df(df,itemnametype, item):
-    return(df
-    .query(f"ItemNameType=={itemnametype} and Item{item}St==1")
-    [f'Item{item}']
-    )
-
-def ppk_result(df, upper, lower):
-    pp = mn.calc_pp(df, upper_specification_limit=upper, lower_specification_limit=lower).round(2)
-    ppk = mn.calc_ppk(df, upper_specification_limit=upper, lower_specification_limit=lower).round(2)
-    sugg = mn.suggest_specification_limits(df)
-    print(f"ppk={ppk}, pp={pp}, sugg={sugg}")
+# def ppk_df(df,itemnametype, item):
+#     return(df
+#     .query(f"ItemNameType=={itemnametype} and Item{item}St==1")
+#     [f'Item{item}']
+#     )
+# def ppk_result(df, upper, lower):
+#     pp = mn.calc_pp(df, upper_specification_limit=upper, lower_specification_limit=lower).round(2)
+#     ppk = mn.calc_ppk(df, upper_specification_limit=upper, lower_specification_limit=lower).round(2)
+#     sugg = mn.suggest_specification_limits(df)
+#     print(f"ppk={ppk}, pp={pp}, sugg={sugg}")
     
 def my_hisplot_SQL(df,itemnametype, item, lower,title):
     # print(f"{ppk_df(df,itemnametype, item).agg(['min','max'])}")

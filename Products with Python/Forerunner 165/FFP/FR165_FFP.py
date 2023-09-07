@@ -29,7 +29,7 @@ raw = pd.read_excel('FP165_FFP.xlsx')
 #     ppk = mn.calc_ppk(df, upper_specification_limit=upper, lower_specification_limit=lower).round(2)
 #     sugg = mn.suggest_specification_limits(df)
 #     print(f"ppk={ppk}, pp={pp}, sugg={sugg}")
-plt.style.use('fivethirtyeight')
+# plt.style.use('fivethirtyeight')
 def my_hisplot_SQL(df,itemnametype, item, lower, higher, title):
     # print(f"{ppk_df(df,itemnametype, item).agg(['min','max'])}")
     plt.figure(dpi=100)
@@ -40,7 +40,8 @@ def my_hisplot_SQL(df,itemnametype, item, lower, higher, title):
                         )
     ,x=f'Item{item}'
     ,hue=f'Item{item}St'
-    # ,hue_order=[1,0]
+    ,hue_order=[1,0,2]
+    ,palette='Set2'
     )
 # %%
 item = [74,42,34,190,71,9,190]

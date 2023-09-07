@@ -6,7 +6,7 @@ import seaborn as sns
 # %%
 raw = pd.read_excel('MK3s_FFP_SQL_RAW.xlsx')
 # %%
-plt.style.use('fivethirtyeight')
+# plt.style.use('fivethirtyeight')
 # def tweak_df(df,itemnametype, item, lower):    
 #     return(df
 #     .query(f"ItemNameType=={itemnametype} and failitem.isin([0,{item}]) and Item{item}>{lower}")
@@ -40,23 +40,25 @@ def my_hisplot_SQL(df,itemnametype, item, lower,title):
                         )
     ,x=f'Item{item}'
     ,hue=f'Item{item}St'
-    # ,hue_order=[1,0]
+    ,hue_order=[1,0,2]
+    ,palette='Set2'
     )
 # %%
 item = [116,117,70,73,199,64,37,36,43,57]
 # itemnametype = [18191,18191,18192,18192,18195,18195,18200,18200,18213,18213,18213]
 testresult = (pd.read_excel('MK3s_FFP_2.6_400.68.xlsx', sheet_name='FFP_45degree2.6%_total400.68')
               .query('Item.isin(@item)')
+              .astype({'Item':'int16'})
               .assign(ProcessType = lambda df: df.ProcessType.str.replace("DescentMK3_",''))
               .sort_values("Retest", ascending=False)
               )
 testresult
 #%%
 for i in range(len(testresult.index)):
-    my_hisplot_SQL(raw, 
+    my_hisplot_SQL(raw,
                    testresult.ItemNameType.iloc[i], 
                    testresult.Item.iloc[i], 
-                   -10, 
+                   -10,
                    f'{i+1}_{testresult.ProcessType.iloc[i]}_{testresult.ItemName.iloc[i]}_{testresult.Retest.iloc[i]}%')
 # my_hisplot_SQL(raw, FT1, 150, -30, "FT1_Glonass_65 by ref")
 # %%

@@ -18,3 +18,4 @@ SELECT [ProjectSizeId]
   
   WHERE DESC_OF_TASK
   IN ('Mechanical Design Review','Factory Prototype Design Review','Pilot Run Design Review')
+  and ProjectSizeId = 1149
