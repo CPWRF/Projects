@@ -17,5 +17,6 @@ SELECT  [StrainGauge].[gid]
   on [StrainGauge].[gid] = [TestRecord].[gid]
   
   where createdata > '2020-01-01'
+  and gpn in ('105-04714-00','105-04714-01')
   
   ORDER by profdate DESC

@@ -1,9 +1,9 @@
-import pyodbc
+# import pyodbc
 import pandas as pd
 from os import getcwd
 from sqlalchemy.engine import URL
 from sqlalchemy import create_engine
-from UliPlot.XLSX import auto_adjust_xlsx_column_width
+# from UliPlot.XLSX import auto_adjust_xlsx_column_width
 
 gpn = input ("Enter whole 105-GPN (according to SMTVip) :")
 
