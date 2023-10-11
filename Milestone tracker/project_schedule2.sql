@@ -14,8 +14,8 @@ SELECT
   on ProjectSizeId = [T_PS_ProdSizeRelateInfo].PROJECT_SIZE_ID
   
   WHERE
-  PROJECT_SIZE_ID = '1058'
+  PROJECT_SIZE_ID = '1139'
   -- DESC_OF_TASK = 'Pilot Run Kick off Meeting'
-  AND CAST([Current_Date] as date) > '2023-01-01'
+  AND CAST([Current_Date] as date) > '2022-01-01'
   AND PROJECT_CATEGORY != 'OEM Auto'
   order by Date ASC

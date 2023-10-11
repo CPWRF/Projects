@@ -45,6 +45,6 @@ def pivot_raw(raw):
     .style.applymap(lambda val : "background-color: red" if val == 0 else "")
     )
 
-with pd.ExcelWriter(getcwd()+'\{}_StrainResult.xlsx'.format(gpn), engine='openpyxl') as writer:
+with pd.ExcelWriter(getcwd()+'\{}_StrainResult.xlsx'.format(gpn)) as writer:
     pivot_raw(raw).to_excel(writer, sheet_name='pivot')
     raw.to_excel(writer, sheet_name='raw', index=False)
