@@ -18,7 +18,7 @@ SELECT
     Item39St
 FROM ate_db_tblfinal_new.dbo.TblFinal f1
 Where ItemNameType = 18213
-and f1.tDateTime > '2023-10-01'
+and f1.tDateTime between '2023-10-01' and '2023-10-05'
 """
 connection_string = "DRIVER={SQL Server};SERVER=SHIWPD-ATESQLR;DATABASE=ate_db_tblfinal_new;UID=ate_oper;PWD=ate.oper"
 connection_url = URL.create("mssql+pyodbc", query={"odbc_connect": connection_string})
