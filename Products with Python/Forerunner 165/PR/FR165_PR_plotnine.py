@@ -1,16 +1,12 @@
 # %%
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from plotnine import *
 from sqlalchemy.engine import URL
 from sqlalchemy import create_engine
-plt.style.use('fivethirtyeight')
 #%%
 # SO = pd.read_excel('MK3_PR_ASSY_SO.xlsx').JobNo
 testresult = (pd.read_excel('FR165_FFP_PR_60.0_-41.17.xlsx', sheet_name='PR_45degree_0.51%_total72.15')
               .assign(ProcessType = lambda df: df.ProcessType.str.replace("FR165_",''))
-            #   .query("ItemName.str.contains('GPS', case=False)| ItemName.str.contains('TX') | ItemName.str.contains('ANT')")
               .astype({"ItemNameType":'int64',"Item":'int16'})
               .iloc[[1,2,3],:]
               )
@@ -70,18 +66,23 @@ connection_url_smt = URL.create("mssql+pyodbc", query={"odbc_connect": connectio
 engine_smt = create_engine(connection_url_smt)
 smt = pd.read_sql(smt_query, engine_smt)
 # %%
-def my_hisplot_SQL(df,itemnametype, item, lower, title):
-    plt.figure(dpi=130)
-    plt.title(title)
-    sns.histplot(data = (df
-                         .replace(-999,lower)
-                         .query(f"ItemNameType == {itemnametype} and Item{item}St.isin([0,1])")
-                        )
-    ,x=f'Item{item}'
-    ,hue=f'Item{item}St'
-    ,hue_order=[1,0]
-    ,palette='Set2'
+def my_ggplot(df,itemnametype, item, lower, title):
+    print(
+        ggplot(assy
+               .replace(-999,lower)
+               .query(f"ItemNameType == {itemnametype} and Item{item}St.isin([0,1])")
+               .astype({f"Item{item}St":"category"})
+                )
+        + aes(x=f'Item{item}', fill=f'Item{item}St')
+        + geom_histogram(position='identity', alpha=0.5)
+        + facet_wrap(["Station","StationID"])
+        # + facet_grid("Station~StationID")
+        + labs(title=title)
+        + theme_538()
+        + theme(dpi=300)
     )
+my_ggplot(assy, 18825, 46, -10, 'test')
+# my_ggplot(assy, 18828, 67, -10, 'test')
 #%%
 for i in range(len(testresult)):
     my_hisplot_SQL(assy,

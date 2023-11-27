@@ -44,7 +44,6 @@ engine = create_engine(connection_url)
 raw = (pd.read_sql(raw_query, engine)
        .assign(Item199 = lambda df : df.Item199.clip(upper=10)) #Clip Item199
        )
-raw.info()
 # %%
 def my_hisplot_SQL(df,itemnametype, item, lower, title):
     plt.figure(dpi=130)
